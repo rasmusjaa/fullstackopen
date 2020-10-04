@@ -14,7 +14,7 @@ const Anecdote = ({index, votes}) => {
 
 const Button = ({handleClick, text}) => <button onClick={handleClick}>{text}</button>
 
-const App = (props) => {
+const App = ({anecdotes}) => {
 	const anecdoteCount = anecdotes.length
 	const [selected, setSelected] = useState(0)
 	const [votes, setVotes] = useState(new Uint8Array(anecdoteCount))
@@ -23,7 +23,7 @@ const App = (props) => {
 		let max = 0
 		for (let i = 0; i < anecdoteCount; i++) {
 			if (votes[i] > votes[max]) {
-				max = votes[i];
+				max = i;
 			}
 		}
 		return max
