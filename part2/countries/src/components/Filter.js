@@ -1,17 +1,10 @@
 import React from 'react'
 
-const searchKeyValue = (arr, key, value) => {
-	const needle = value.toLowerCase()
-	const filtered = arr.filter((haystack) => haystack[key].toLowerCase().includes(needle))
-	return filtered
-}
-
-const Filter = ({countries, setCopyCountries}) => {
+const Filter = ({setFilter}) => {
 	const handleFilterChange = (event) => {
-		const copy = searchKeyValue(countries, 'name', event.target.value)
-		setCopyCountries(copy)
+		setFilter(event.target.value)
 	}
-
+	
 	return (
 		<div>
 			find countries <input onChange={handleFilterChange} />
