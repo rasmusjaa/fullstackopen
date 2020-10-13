@@ -10,7 +10,7 @@ const containsKeyValue = (arr, key, value) => {
 	return filtered.length > 0
 }
 
-const PersonForm = ({persons, setPersons, setCopyPersons}) => {
+const PersonForm = ({ persons, setPersons }) => {
 	const [ newName, setNewName ] = useState('')
 	const [ newNumber, setNewNumber ] = useState('')
 
@@ -23,7 +23,6 @@ const PersonForm = ({persons, setPersons, setCopyPersons}) => {
 		} else if (newName !== '' && newNumber!== '') {
 			const copy = persons.concat({name: newName, number: newNumber})
             setPersons(copy)
-            setCopyPersons(copy)
 			setNewName('')
             setNewNumber('')
 		}
