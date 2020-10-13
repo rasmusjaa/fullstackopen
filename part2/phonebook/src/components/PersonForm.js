@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
+import phonebookService from './../services/phonebook'
 
 const containsKeyValue = (arr, key, value) => {
 	const needle = value.toLowerCase()
-	const filtered = arr.filter((haystack) => {
-		if (haystack[key].toLowerCase().includes(needle) && haystack[key].length === needle.length)
-			return true
-		return false
+	const found = arr.find((haystack) => {
+		return (haystack[key].toLowerCase() === needle)
 	})
-	return filtered.length > 0
+	return typeof found !== 'undefined'
 }
 
 const PersonForm = ({ persons, setPersons }) => {
@@ -16,15 +15,42 @@ const PersonForm = ({ persons, setPersons }) => {
 
 	const addPerson = (event) => {
 		event.preventDefault()
-		if (containsKeyValue(persons, 'name', newName)) {
-			alert(`${newName} is already added to phonebook`)
-		} else if (containsKeyValue(persons, 'number', newNumber)) {
+		if (newName === '' || newNumber === '')
+			return
+		else if (containsKeyValue(persons, 'number', newNumber)) {
 				alert(`${newNumber} is already added to phonebook`)
-		} else if (newName !== '' && newNumber!== '') {
-			const copy = persons.concat({name: newName, number: newNumber})
-            setPersons(copy)
-			setNewName('')
-            setNewNumber('')
+		} else if (containsKeyValue(persons, 'name', newName)) {
+			const found = persons.find(n => n.name === newName)
+			if (window.confirm(found.name + ' already exists, update number?'))
+			{
+				const changed = { ...found, number: newNumber}
+				phonebookService
+					.update(found.id, changed)
+					.then(returnedPerson => {
+						setPersons(persons.map(person => person.id !== found.id ? person : returnedPerson))
+						setNewName('')
+						setNewNumber('')
+					})
+					.catch(error => {
+						alert(
+							`couldn't change number to phonebook on server`
+						)
+					})
+			}
+		} else {
+			const person = { name: newName, number: newNumber }
+			phonebookService
+				.create(person)
+				.then(returnedPerson => {
+					setPersons(persons.concat(returnedPerson))
+					setNewName('')
+					setNewNumber('')
+				})
+				.catch(error => {
+					alert(
+						`couldn't add person to phonebook on server`
+					)
+				})
 		}
 	}
 
