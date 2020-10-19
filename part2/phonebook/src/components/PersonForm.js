@@ -9,7 +9,7 @@ const containsKeyValue = (arr, key, value) => {
 	return typeof found !== 'undefined'
 }
 
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({ persons, setPersons, setNotification }) => {
 	const [ newName, setNewName ] = useState('')
 	const [ newNumber, setNewNumber ] = useState('')
 
@@ -18,7 +18,7 @@ const PersonForm = ({ persons, setPersons }) => {
 		if (newName === '' || newNumber === '')
 			return
 		else if (containsKeyValue(persons, 'number', newNumber)) {
-				alert(`${newNumber} is already added to phonebook`)
+				alert(`Number ${newNumber} is already added to phonebook`)
 		} else if (containsKeyValue(persons, 'name', newName)) {
 			const found = persons.find(n => n.name === newName)
 			if (window.confirm(found.name + ' already exists, update number?'))
@@ -45,6 +45,13 @@ const PersonForm = ({ persons, setPersons }) => {
 					setPersons(persons.concat(returnedPerson))
 					setNewName('')
 					setNewNumber('')
+					setNotification({
+						"message": `Added ${returnedPerson.name}`,
+						"type": "notification"
+					})
+					setTimeout(() => {
+						setNotification(null)
+					}, 5000)
 				})
 				.catch(error => {
 					alert(

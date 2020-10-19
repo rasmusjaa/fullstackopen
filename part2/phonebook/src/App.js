@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Person from './components/Person'
+import Notification from './components/Notification'
 import phonebookService from './services/phonebook'
 
 const searchKeyValue = (arr, key, value) => {
@@ -13,6 +14,7 @@ const searchKeyValue = (arr, key, value) => {
 const App = () => {
 	const [ persons, setPersons ] = useState([])
 	const [ filter, setFilter ] = useState('')
+	const [ notification, setNotification] = useState(null)
 
 	useEffect(() => {
 		phonebookService
@@ -33,9 +35,13 @@ const App = () => {
 				.remove(person.id)
 				.then( () => setPersons(persons.filter(n => n.id !== person.id)))
 				.catch(error => {
-					alert(
-						`couldn't delete '${person.name}' from server`
-					)
+					setNotification({
+						"message": `couldn't delete '${person.name}' from server`,
+						"type": "error"
+					})
+					setTimeout(() => {
+						setNotification(null)
+					}, 5000)
 					setPersons(persons.filter(n => n.name !== person.name))
 				})
 	}
@@ -43,9 +49,10 @@ const App = () => {
 	return (
 		<div>
 			<h1>Phonebook</h1>
+			<Notification notification={notification} />
 			<Filter setFilter={setFilter} />
 			<h2>Add a new</h2>
-			<PersonForm persons={persons} setPersons={setPersons} />
+			<PersonForm persons={persons} setPersons={setPersons} setNotification={setNotification} />
 			<h2>Numbers</h2>
 			{searchKeyValue(persons, 'name', filter).map((person) => 
 				<Person key={person.name} name={person.name} number={person.number} deletePerson={ () => deletePerson(person)} />
