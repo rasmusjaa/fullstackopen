@@ -32,9 +32,14 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
 						setNewNumber('')
 					})
 					.catch(error => {
-						alert(
-							`couldn't change number to phonebook on server`
-						)
+						setNotification({
+							"message": `Error: ${error.response.data.error}`,
+							"type": "error"
+						})
+						setTimeout(() => {
+							setNotification(null)
+						}, 5000)
+						console.log(error.response.data)
 					})
 			}
 		} else {
@@ -54,9 +59,14 @@ const PersonForm = ({ persons, setPersons, setNotification }) => {
 					}, 5000)
 				})
 				.catch(error => {
-					alert(
-						`couldn't add person to phonebook on server`
-					)
+					setNotification({
+						"message": `Error: ${error.response.data.error}`,
+						"type": "error"
+					})
+					setTimeout(() => {
+						setNotification(null)
+					}, 5000)
+					console.log(error.response.data)
 				})
 		}
 	}

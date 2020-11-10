@@ -2,6 +2,9 @@
   "name": "phonebook",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "15.0.1"
+  },
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -22,6 +25,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mongoose": "^5.10.13",
+    "mongoose-unique-validator": "^2.0.3",
     "morgan": "^1.10.0"
   }
 }
