@@ -6,25 +6,25 @@ require('dotenv').config()
 const url = process.env.MONGODB_URL
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
-    .then(reult => {
-        console.log('connected to MongoDB');
-    })
-    .catch((error) => {
-        console.log('error connecting to MongoDB:', error.message);
-    })
+	.then(reult => {
+		console.log('connected to MongoDB')
+	})
+	.catch((error) => {
+		console.log('error connecting to MongoDB:', error.message)
+	})
 
 const personSchema = new mongoose.Schema({
-    name: {
-        unique: true,
-        type: String,
-        minlength: 3,
-        required: true
-    },
+	name: {
+		unique: true,
+		type: String,
+		minlength: 3,
+		required: true
+	},
 	number: {
-        type: String,
-        minlength: 8,
-        required: true
-    }
+		type: String,
+		minlength: 8,
+		required: true
+	}
 })
 
 personSchema.plugin(uniqueValidator)
