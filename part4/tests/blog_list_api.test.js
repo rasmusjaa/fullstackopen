@@ -92,6 +92,39 @@ test('blogs withoout title and url response with 400', async () => {
 		.expect(400)
 })
 
+test('blogs can be deleted', async () => {
+	const blogsStart = await blogsInDb()
+	const idToDelete = blogsStart[0].id
+
+	await api
+		.delete(`/api/blogs/${idToDelete}`)
+		.expect(204)
+
+	const blogsEnd = await blogsInDb()
+	expect(blogsEnd.length).toBe(blogsStart.length - 1)
+})
+
+test('blogs can be updated', async () => {
+	const blogsStart = await blogsInDb()
+	const idToUpdate = blogsStart[0].id
+	const updatedLikes = blogsStart[0].id + 1
+
+	const blog = {
+		title: 'updated title',
+		author: 'updated author',
+		url: 'updated url',
+		likes: 42
+	}
+
+	await api
+		.put(`/api/blogs/${idToUpdate}`)
+		.send(blog)
+		.expect(200)
+
+	const blogsEnd = await blogsInDb()
+	expect(blogsEnd[0].likes).toBe(blog.likes)
+})
+
 afterAll(() => {
 	mongoose.connection.close()
 })
