@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const jwt = require('jsonwebtoken')
 const app = require('../app')
 const Blog = require('../models/blogpost')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -19,6 +21,12 @@ const initialBlogs = [
 		likes: 2
 	}
 ]
+
+const testUser = {
+	username: 'test username',
+	password: 'test password',
+	name: 'test name'
+}
 
 const additionalBlog = {
 	title: 'additional title',
@@ -40,12 +48,26 @@ const blogWithoutTitleUrl = {
 
 beforeEach(async () => {
 	await Blog.deleteMany({})
+	await User.deleteMany({})
 
 	for (let blog of initialBlogs) {
 		let blogObject = new Blog(blog)
 		await blogObject.save()
 	}
+	const user = new User(testUser)
+	const savedUser = await user.save()
+	await Blog.updateMany({}, { $set: { user: savedUser._id } })
 })
+
+const getToken = async () => {
+	const user = await User.findOne({ username: testUser.username })
+	const userForToken = {
+		username: user.username,
+		id: user._id,
+	}
+
+	return jwt.sign(userForToken, process.env.SECRET)
+}
 
 const blogsInDb = async () => {
 	const blogs = await Blog.find({})
@@ -69,6 +91,7 @@ test('blogs can be added', async () => {
 
 	await api
 		.post('/api/blogs')
+		.set('Authorization', `bearer ${await getToken()}`)
 		.send(additionalBlog)
 
 	const blogsEnd = await blogsInDb()
@@ -78,6 +101,7 @@ test('blogs can be added', async () => {
 test('blogs default likes is set to 0', async () => {
 	await api
 		.post('/api/blogs')
+		.set('Authorization', `bearer ${await getToken()}`)
 		.send(blogWithoutLikes)
 
 	const blogsEnd = await blogsInDb()
@@ -85,9 +109,10 @@ test('blogs default likes is set to 0', async () => {
 	expect(blogsEnd[blogsEnd.length - 1].likes).toBe(0)
 })
 
-test('blogs withoout title and url response with 400', async () => {
+test('blogs without title and url response with 400', async () => {
 	await api
 		.post('/api/blogs')
+		.set('Authorization', `bearer ${await getToken()}`)
 		.send(blogWithoutTitleUrl)
 		.expect(400)
 })
@@ -98,6 +123,7 @@ test('blogs can be deleted', async () => {
 
 	await api
 		.delete(`/api/blogs/${idToDelete}`)
+		.set('Authorization', `bearer ${await getToken()}`)
 		.expect(204)
 
 	const blogsEnd = await blogsInDb()
@@ -123,6 +149,15 @@ test('blogs can be updated', async () => {
 
 	const blogsEnd = await blogsInDb()
 	expect(blogsEnd[0].likes).toBe(blog.likes)
+})
+
+test('adding blog without token responds with 401 status', async () => {
+	const blogsStart = await blogsInDb()
+
+	await api
+		.post('/api/blogs')
+		.send(additionalBlog)
+		.expect(401)
 })
 
 afterAll(() => {
